@@ -1,5 +1,6 @@
 %{
 #include "mycalc.tab.h"
+#include "calc.h"
 %}
 num		[0-9]+\.?[0-9]*
 var		[A-Za-z][A-Za-z0-9_]*
@@ -9,6 +10,7 @@ addop		"+"
 subop		"-"
 multiop		"*"
 divop		"/"
+power		"^"
 lp		"("
 rp		")"
 %%
@@ -26,10 +28,18 @@ EOF return 0;
 	if(s == 0)
 		s = putsym(yytext, VAR);
 	yylval.tptr = s;
-	return VAR;
+	return s->type;
 }
-{nl} {return NL;}
-.	return yytext[0];
+{assignop}	return ASSIGNOP;
+{addop}		return ADDOP;
+{subop}		return SUBOP;
+{multiop}	return MULTIOP;
+{divop}		return DIVOP;
+{power}		return POWER;
+{lp}		return LP;
+{rp}		return RP;
+{nl}		return NL;
+.		return yytext[0];
 
 %%
 int yywrap(){

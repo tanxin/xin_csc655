@@ -5,21 +5,22 @@
 
 %{
 #include <math.h>  /* For math functions, cos(), sin(), etc. */
+#include <stdio.h>
 #include "calc.h"  /* Contains definition of `symrec'        */
 %}
 %union {
-double     val;  /* For returning numbers.                   */
-symrec  *tptr;   /* For returning symbol-table pointers      */
+double val;		/* For returning numbers.                   */
+struct symrec  *tptr;	/* For returning symbol-table pointers      */
 }
+%token NL LP RP
 %token <val>  NUM        /* Simple double precision number   */
 %token <tptr> VAR FNCT   /* Variable and Function            */
-%token NL
 %type  <val>  exp
-%right '='
-%left '-' '+'
-%left '*' '/'
+%right ASSIGNOP
+%left ADDOP SUBOP
+%left MULTIOP DIVOP
 %left NEG     /* Negation--unary minus */
-%right '^'    /* Exponentiation        */
+%right POWER    /* Exponentiation        */
 
 /* Grammar follows */
 
@@ -33,60 +34,57 @@ line:   NL
 ;
 exp:      NUM                { $$ = $1;                         }
         | VAR                { $$ = $1->value.var;              }
-        | VAR '=' exp        { $$ = $3; $1->value.var = $3;     }
-        | FNCT '(' exp ')'   { $$ = (*($1->value.fnctptr))($3); }
-        | exp '+' exp        { $$ = $1 + $3;                    }
-        | exp '-' exp        { $$ = $1 - $3;                    }
-        | exp '*' exp        { $$ = $1 * $3;                    }
-        | exp '/' exp        { $$ = $1 / $3;                    }
-        | '-' exp  %prec NEG { $$ = -$2;                        }
-        | exp '^' exp        { $$ = pow ($1, $3);               }
-        | '(' exp ')'        { $$ = $2;                         }
+        | VAR ASSIGNOP exp        { $$ = $3; $1->value.var = $3;     }
+        | FNCT LP exp RP   { $$ = (*($1->value.fnctptr))($3); }
+        | exp ADDOP exp        { $$ = $1 + $3;                    }
+        | exp SUBOP exp        { $$ = $1 - $3;                    }
+        | exp MULTIOP exp        { $$ = $1 * $3;                    }
+        | exp DIVOP exp        { $$ = $1 / $3;                    }
+        | SUBOP exp  %prec NEG { $$ = -$2;                        }
+        | exp POWER exp        { $$ = pow ($1, $3);               }
+        | LP exp RP        { $$ = $2;                         }
 ;
 /* End of grammar */
 %%
 
-#include <stdio.h>
-main ()
+#include <string.h>
+
+int main ()
 {
   init_table ();
   yyparse ();
+  return 0;
 }
 
-void yyerror (s)  /* Called by yyparse on error */
-     char *s;
+int yyerror (s)  /* Called by yyparse on error */
+	char const *s;
 {
   printf ("%s\n", s);
-  return ;
+  return 0;
 }
-
-struct init
-{
-  char *fname;
-  double (*fnct)();
-};
 
 struct init arith_fncts[]
   = {
-      "sin", sin,
-      "cos", cos,
-      "atan", atan,
-      "ln", log,
-      "exp", exp,
-      "sqrt", sqrt,
-      0, 0
+      {"sin", sin},
+      {"cos", cos},
+      {"atan", atan},
+      {"ln", log},
+      {"log10", log10},
+      {"exp", exp},
+      {"sqrt", sqrt},
+      {0, 0}
     };
 
 /* The symbol table: a chain of `struct symrec'.  */
 
 symrec *sym_table = (symrec *)0;
-init_table ()  /* puts arithmetic functions in table. */
+void init_table ()  /* puts arithmetic functions in table. */
 {
   int i;
   symrec *ptr;
-  for (i = 0; arith_fncts[i].fname != 0; i++)
+  for (i = 0; arith_fncts[i].name != 0; i++)
     {
-      ptr = putsym (arith_fncts[i].fname, FNCT);
+      ptr = putsym (arith_fncts[i].name, FNCT);
       ptr->value.fnctptr = arith_fncts[i].fnct;
     }
 }
@@ -118,4 +116,5 @@ symrec *getsym (sym_name)  char *sym_name;
 }
 
 #include <ctype.h>
-#include "mycalc.yy.c"
+//#include "mycalc.yy.c"
+

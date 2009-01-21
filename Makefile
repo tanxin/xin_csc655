@@ -4,10 +4,10 @@ lex:
 	flex -o mycalc.yy.c mycalc.lex
 
 yacc:
-	bison -d mycalc.y
+	bison -d -v mycalc.y
 
 compile:
-	gcc -Wall -lm -o mycalc mycalc.tab.c
+	gcc -Wall -lm -o mycalc mycalc.tab.c mycalc.yy.c
 
 clean:
-	rm -f mycalc.tab.h mycalc.tab.c mycalc.yy.c mycalc
+	rm -f mycalc.tab.h mycalc.tab.c mycalc.yy.c mycalc mycalc.output

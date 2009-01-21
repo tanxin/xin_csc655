@@ -1,0 +1,17 @@
+%{
+#include <math.h>
+#include <string.h>
+%}
+struct init {
+	char *name;
+	double (*fnct)();
+};
+
+%%
+sin, sin
+cos, cos
+atan, atan
+ln, log
+log10, log10
+exp, exp
+sqrt, sqrt

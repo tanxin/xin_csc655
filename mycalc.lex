@@ -24,6 +24,16 @@ EOF return 0;
 
 {var} {
 	symrec *s;
+	struct init *init_ptr;
+	
+	/* looking for function in gperf */
+	init_ptr = in_word_set(yytext, strlen(yytext));
+	if(init_ptr != 0){
+		yylval.fnct = init_ptr->fnct;
+		return FNCT;
+	}
+
+	/* looking for variable in link chain */
 	s = getsym(yytext);
 	if(s == 0)
 		s = putsym(yytext, VAR);

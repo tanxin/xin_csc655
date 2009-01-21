@@ -27,5 +27,6 @@ symrec *getsym ();
 int yyerror (char const *);
 int yylex();
 void init_table();
+struct init *in_word_set(register const char *, register unsigned int);
 #endif
 

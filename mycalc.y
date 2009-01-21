@@ -11,10 +11,12 @@
 %union {
 double val;		/* For returning numbers.                   */
 struct symrec  *tptr;	/* For returning symbol-table pointers      */
+double (*fnct)();
 }
 %token NL LP RP
 %token <val>  NUM        /* Simple double precision number   */
-%token <tptr> VAR FNCT   /* Variable and Function            */
+%token <tptr> VAR	/* Variable */
+%token <fnct> FNCT	/* Function */
 %type  <val>  exp
 %right ASSIGNOP
 %left ADDOP SUBOP
@@ -35,7 +37,7 @@ line:   NL
 exp:      NUM                { $$ = $1;                         }
         | VAR                { $$ = $1->value.var;              }
         | VAR ASSIGNOP exp        { $$ = $3; $1->value.var = $3;     }
-        | FNCT LP exp RP   { $$ = (*($1->value.fnctptr))($3); }
+        | FNCT LP exp RP   { $$ = (*$1)($3); }
         | exp ADDOP exp        { $$ = $1 + $3;                    }
         | exp SUBOP exp        { $$ = $1 - $3;                    }
         | exp MULTIOP exp        { $$ = $1 * $3;                    }

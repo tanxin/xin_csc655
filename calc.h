@@ -4,11 +4,7 @@
 /* Data type for links in the chain of symbols.      */
 struct symrec {
 	char *name;			/* name of symbol */
-	int type;			/* type of symbol: either VAR or FNCT */
-	union {
-		double var;		/* value of a VAR */
-		double (*fnctptr)();	/* value of a FNCT */
-	} value;
+	double var;
 	struct symrec *next;		/* link field */
 };
 typedef struct symrec symrec;

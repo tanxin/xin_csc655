@@ -36,9 +36,9 @@ EOF return 0;
 	/* looking for variable in link chain */
 	s = getsym(yytext);
 	if(s == 0)
-		s = putsym(yytext, VAR);
+		s = putsym(yytext);
 	yylval.tptr = s;
-	return s->type;
+	return VAR;
 }
 {assignop}	return ASSIGNOP;
 {addop}		return ADDOP;
